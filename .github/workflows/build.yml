@@ -1,0 +1,20 @@
+name: build qt win
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Build MSVC
+        # shell介绍 https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
+        shell: pwsh        
+        run: |          
+          call "build_win.bat"
