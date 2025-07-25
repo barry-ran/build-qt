@@ -13,8 +13,22 @@ jobs:
     runs-on: windows-latest
     
     steps:
+      - name: checkout
+        uses: actions/checkout@v2
+    
+      - name: Cache qt
+        id: cache-qt
+        uses: actions/cache@v4
+        env:
+          qt-version: 5.15.17
+        with:          
+          path: |
+            ./qt-everywhere-opensource-src-${{ env.qt-version }}.zip
+            ./qt-everywhere-opensource-src-${{ env.qt-version }}
+          key: ${{ runner.os }}-cache-qt-${{ env.qt-version }}
+
       - name: Build MSVC
         # shell介绍 https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
-        shell: pwsh        
-        run: |          
-          call "build_win.bat"
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" & "build_win.bat"
