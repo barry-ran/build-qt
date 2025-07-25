@@ -3,10 +3,14 @@ name: build qt win
 on:
   workflow_dispatch:
     inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
+      build_type:
+        type: choice
+        description: 'build type'
+        required: true
+        default: static
+        options:
+        - shared
+        - static
 
 jobs:
   build:
@@ -27,8 +31,34 @@ jobs:
             ./qt-everywhere-opensource-src-${{ env.qt-version }}
           key: ${{ runner.os }}-cache-qt-${{ env.qt-version }}
 
-      - name: Build MSVC
+      - name: Build shared
         # shell介绍 https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
         shell: cmd
+        if: ${{ github.event.inputs.build_type == 'shared' }}
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" & "build_win.bat"
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" & "build_win_shared.bat"
+      - name: Build static
+        shell: cmd
+        if: ${{ github.event.inputs.build_type == 'static' }}
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" & "build_win_static.bat"
+      - name: Package shared
+        id: package
+        if: ${{ github.event.inputs.build_type == 'shared' }}
+        run: |
+          Compress-Archive -Path out-shared out-shared.zip
+      - name: Package static
+        if: ${{ github.event.inputs.build_type == 'static' }}
+        run: |
+          Compress-Archive -Path out-static out-static.zip          
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.build_type == 'shared' }}
+        with:
+          name: out-shared.zip
+          path: out-shared.zip      
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.build_type == 'static' }}
+        with:
+          name: out-static.zip
+          path: out-static.zip
+

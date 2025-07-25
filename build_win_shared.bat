@@ -37,7 +37,7 @@ mkdir build
 cd build
 
 echo Run configure
-echo y | "../%QT_SRC_DIR%/configure" -prefix ../out -shared -release -nomake examples -nomake tests -skip qtwebengine ^
+echo y | "../%QT_SRC_DIR%/configure" -prefix ../out-shared -shared -release -nomake examples -nomake tests -skip qtwebengine ^
 -opensource -platform win32-msvc -no-compile-examples -mp
 :: -force-debug-info
 if not %errorlevel%==0 (
